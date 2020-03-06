@@ -112,14 +112,14 @@ uint8_t valadc;
 float voltaje;
 void lcd_chara(uint8_t dato);
 void ftoa2(float n, char* res, int afterpoint);
-void ADCinit(void){
-    ADCON1bits.ADFM =0;// Justificacion izquierda y voltajes de referencia VDD y VSS
-    ADCON1bits.VCFG0 =0;
-    ADCON1bits.VCFG1 =0;
-    ADCON0bits.ADCS0 =1;// Iniciar ADC y determinar como va a leer
-    ADCON0bits.ADCS1 =0;
-    ADCON0bits.ADON = 1;
-                   }
+//void ADCinit(void){
+//    ADCON1bits.ADFM =0;// Justificacion izquierda y voltajes de referencia VDD y VSS
+//    ADCON1bits.VCFG0 =0;
+//    ADCON1bits.VCFG1 =0;
+//    ADCON0bits.ADCS0 =1;// Iniciar ADC y determinar como va a leer
+//    ADCON0bits.ADCS1 =0;
+//    ADCON0bits.ADON = 1;
+//                   }
 //*****************************************************************************
 // Libreria LCD
 //*****************************************************************************
