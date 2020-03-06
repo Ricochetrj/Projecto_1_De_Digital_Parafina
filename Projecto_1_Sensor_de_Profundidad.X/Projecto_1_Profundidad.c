@@ -1,5 +1,5 @@
 /****************************************
-    * File:    ADC.c                *
+    * File:    Projecto_1_Profundidad.c                *
      * Date:    23/02/2020                   *
      * Author:  Rodrigo Figueroa             *
      * Prof:     Pablo Mazariegos            *
@@ -57,6 +57,7 @@
 short z;
 uint8_t adcval;
 uint8_t masterval;
+uint8_t deep;
 int adcsend;
 //*****************************************************************************
 // Interrupcion de Esclavo
@@ -89,7 +90,7 @@ void __interrupt() isr(void)
   {
     z = SSPBUF;
     BF = 0;
-    SSPBUF = adcsend;
+    SSPBUF = deep;
     SSPCONbits.CKP = 1;
      __delay_us(250);
     while(SSPSTATbits.BF);
@@ -106,7 +107,7 @@ void __interrupt() isr(void)
 //*****************************************************************************
 void main(void) {
     ADCinit(); //Iniciar ADC
-    I2C_Slave_Init(0x70); //Iniciar PIC como Esclavo
+    I2C_Slave_Init(0x10); //Iniciar PIC como Esclavo
     TRISB = 0b00100000;
     ANSELH = 0b00100000;
     PORTB = 0;
@@ -114,5 +115,23 @@ void main(void) {
     while(1){
         ADCread(); //leer valor de ADC y mandarlo en la  interrupcion
         adcsend = voltaje;
+        if(adcsend<100){
+            deep = 0;
+        }
+        if(adcsend<110 && adcsend>100){
+            deep = 1;
+        }
+        if(adcsend<120 && adcsend>110){
+            deep = 2;
+        }
+        if(adcsend<130 && adcsend>120){
+            deep = 3;
+        }
+        if(adcsend<140 && adcsend>130){
+            deep = 4;
+        }
+        if(adcsend>140){
+            deep = 5;
+        }
     }
 }
