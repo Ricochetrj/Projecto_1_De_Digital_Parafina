@@ -86,7 +86,7 @@ void main(){
       lcd_cursor(1,18);// Poner texto de cursor en posicion 3
       lcd_palabra("Kg");
       __delay_ms(10);
-      lcd_cursor(1,8);// Poner texto de cursor en posicion 3
+      lcd_cursor(1,10);// Poner texto de cursor en posicion 3
       lcd_palabra("Cm");
       __delay_ms(10);
       lcd_cursor(1,12);// Poner texto de cursor en posicion 3
@@ -140,9 +140,9 @@ void main(){
     I2C_Master_Write(0x51);     //Address
     Luz = I2C_Master_Read(0); //Mandar valor leido a variable
     I2C_Master_Stop();          //Condicion de Fin
-    itoa(buffer,Temperatura,10);     //Convertir variable en String
-    lcd_cursor(2,14);            //Desplegar en LCD
-    lcd_palabra(buffer);
+    //itoa(buffer,Temperatura,10);     //Convertir variable en String
+    lcd_cursor(2,13);            //Desplegar en LCD
+    lcd_palabra(Luz);
     
 //    Lcd_Shift_Right();
 //    __delay_ms(10);

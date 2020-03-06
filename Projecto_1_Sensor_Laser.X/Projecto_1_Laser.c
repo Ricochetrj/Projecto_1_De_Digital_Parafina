@@ -58,6 +58,8 @@ short z;
 uint8_t adcval;
 uint8_t masterval;
 int adcsend;
+float confirm;
+#define Laser RB7
 //*****************************************************************************
 // Interrupcion de Esclavo
 //*****************************************************************************
@@ -89,7 +91,7 @@ void __interrupt() isr(void)
   {
     z = SSPBUF;
     BF = 0;
-    SSPBUF = adcsend;
+    SSPBUF = confirm;
     SSPCONbits.CKP = 1;
      __delay_us(250);
     while(SSPSTATbits.BF);
@@ -105,15 +107,17 @@ void __interrupt() isr(void)
 // Funcion Principal
 //*****************************************************************************
 void main(void) {
-    ADCinit(); //Iniciar ADC
-    I2C_Slave_Init(0x70); //Iniciar PIC como Esclavo
-    TRISB = 0b00100000;
-    ANSELH = 0b00100000;
+    I2C_Slave_Init(0x50); //Iniciar PIC como Esclavo
+    TRISB = 0b10000000;
+    ANSELH = 0
     PORTB = 0;
-    ADCON0bits.CHS = 13;
     while(1){
-        ADCread(); //leer valor de ADC y mandarlo en la  interrupcion
-        adcsend = voltaje;
+        if(Laser == 1){
+            confirm = "No";
+        }
+        if(Laser == 0){
+            confirm = "Yes";
+        }
     }
 }
 
