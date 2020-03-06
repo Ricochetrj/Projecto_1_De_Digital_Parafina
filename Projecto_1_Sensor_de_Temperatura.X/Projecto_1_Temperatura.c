@@ -55,9 +55,9 @@
 // Variables
 //*****************************************************************************
 short z;
-uint8_t adcval;
 uint8_t masterval;
-int adcsend;
+uint8_t TempD;
+uint8_t Temp;
 //*****************************************************************************
 // Interrupcion de Esclavo
 //*****************************************************************************
@@ -89,7 +89,7 @@ void __interrupt() isr(void)
   {
     z = SSPBUF;
     BF = 0;
-    SSPBUF = adcsend;
+    SSPBUF = Temp ;
     SSPCONbits.CKP = 1;
      __delay_us(250);
     while(SSPSTATbits.BF);
@@ -99,20 +99,20 @@ void __interrupt() isr(void)
   }
   return;
 }
-
-
 //*****************************************************************************
 // Funcion Principal
 //*****************************************************************************
 void main(void) {
-    ADCinit(); //Iniciar ADC
-    I2C_Slave_Init(0x70); //Iniciar PIC como Esclavo
-    TRISB = 0b00100000;
+    ADCinit(); // Inicializar ADC
+    I2C_Slave_Init(0x20); //Inicializar I2C como esclavo con Address 0x50
+    ADCON0bits.CHS = 13; // Canal 13 del ADC
+    TRISB = 0b10100000;//Inicializar Puerto
     ANSELH = 0b00100000;
     PORTB = 0;
-    ADCON0bits.CHS = 13;
     while(1){
-        ADCread(); //leer valor de ADC y mandarlo en la  interrupcion
-        adcsend = voltaje;
+        ADCread();// Leer Valor analogico del puerto y mandarlo al maestro
+        Temp = voltaje;
+        TempD = PORTBbits.RB7;
     }
+    
 }

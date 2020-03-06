@@ -58,7 +58,7 @@ short z;
 uint8_t adcval;
 uint8_t masterval;
 int adcsend;
-float confirm;
+uint8_t confirm;
 #define Laser RB7
 //*****************************************************************************
 // Interrupcion de Esclavo
@@ -109,14 +109,14 @@ void __interrupt() isr(void)
 void main(void) {
     I2C_Slave_Init(0x50); //Iniciar PIC como Esclavo
     TRISB = 0b10000000;
-    ANSELH = 0
+    ANSELH = 0;
     PORTB = 0;
     while(1){
         if(Laser == 1){
-            confirm = "No";
+            confirm = 0;
         }
         if(Laser == 0){
-            confirm = "Yes";
+            confirm = 1;
         }
     }
 }

@@ -54,7 +54,7 @@ uint8_t Peso;        // Address 0x30
 uint8_t Distancia;   // Address 0x40
 uint8_t Luz;         // Address 0x50
 char d1,d2,d3;
-
+double Rtemp;
 //*****************************************************************************
 // Subrutina de Inicio
 //*****************************************************************************
@@ -70,7 +70,16 @@ void Start(){
   __delay_ms(250);
 }
 
-
+//*****************************************************************************
+// Ecuacion Steinheart-Hart Para conversion de la temperatura
+//*****************************************************************************
+double Thermistor(int temperatura){
+    double tempura;
+    tempura = log(((10240000/temperatura)-1000));
+    tempura = 1 / (0.001129148 + (0.000234125 * tempura) + (0.0000000876741 * tempura * tempura * tempura));
+    tempura = tempura - 273.15;           // Convert Kelvin to Celcius
+    Rtemp =  abs(tempura);
+}
 
 
 void main(){
@@ -89,7 +98,7 @@ void main(){
       lcd_cursor(1,10);// Poner texto de cursor en posicion 3
       lcd_palabra("Cm");
       __delay_ms(10);
-      lcd_cursor(1,12);// Poner texto de cursor en posicion 3
+      lcd_cursor(1,14);// Poner texto de cursor en posicion 3
       lcd_palabra("Luz");
       __delay_ms(10);
    
@@ -108,9 +117,12 @@ void main(){
     I2C_Master_Write(0x21);     //Address
     Temperatura = I2C_Master_Read(0); //Mandar valor leido a variable
     I2C_Master_Stop();          //Condicion de Fin
-    itoa(buffer,Temperatura,10);     //Convertir variable en String
+    Thermistor(Temperatura);           //Transformar variable en Temperatura
+    itoa(buffer,Rtemp,10);      //Convertir en String
     lcd_cursor(2,5);            //Desplegar en LCD
     lcd_palabra(buffer); 
+    lcd_cursor(2,8);
+    lcd_palabra("C");
     
     //Funcion para llamar Valor de Peso del array de I2C  
     I2C_Master_Start();         //Condicion de inicio
@@ -140,9 +152,17 @@ void main(){
     I2C_Master_Write(0x51);     //Address
     Luz = I2C_Master_Read(0); //Mandar valor leido a variable
     I2C_Master_Stop();          //Condicion de Fin
-    //itoa(buffer,Temperatura,10);     //Convertir variable en String
-    lcd_cursor(2,13);            //Desplegar en LCD
-    lcd_palabra(Luz);
+    if(Luz == 1){
+        lcd_cursor(2,15);            //Desplegar en LCD
+    lcd_palabra("Si");
+        
+    }
+    if(Luz == 0){
+        lcd_cursor(2,15);            //Desplegar en LCD
+    lcd_palabra("No");
+        
+    }
+    
     
 //    Lcd_Shift_Right();
 //    __delay_ms(10);

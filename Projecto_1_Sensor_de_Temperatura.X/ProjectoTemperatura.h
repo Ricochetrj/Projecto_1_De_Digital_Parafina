@@ -264,7 +264,6 @@ void ADCread(){ // Iniciar lectura de ADC, Esperar a que termine de leer, conver
     while(ADCON0bits.GO_DONE);
     valadc= ADRESH;
     voltaje=valadc;
-    //itoa(buffer,voltaje,10);
     __delay_ms(50);
     
 }
