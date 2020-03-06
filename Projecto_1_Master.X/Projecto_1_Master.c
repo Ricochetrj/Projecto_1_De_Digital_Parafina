@@ -1,14 +1,13 @@
 /****************************************
-    * File:    Master_main.c                 *
-     * Date:    23/02/2020                   *
+    * File:    Projecto_1_Master.c                 *
+     * Date:    04/03/2020                   *
      * Author:  Rodrigo Figueroa             *
      * Prof:     Pablo Mazariegos            *
      * Seccion:     20                       *
      * Clase:   Digital 2                    *
      * Compiler:    MPLAB XC8 v2.10          *
      * Arquitectura:    PIC16F887            *
-     * Descripcion:  Projecto en donde un PIC maestro controla a otros 3 PICs
- *  Utilizando Comunicacion I2C
+     * Descripcion:  
      * 
      * 
      * Asignacion de Pins:
@@ -47,13 +46,19 @@
 #include <xc.h>
 #include "ProjectoMaster.h"
 //*****************************************************************************
+// Declaracion de Variables
+//*****************************************************************************
+uint8_t Profundidad; // Address 0x10
+uint8_t Temperatura; // Address 0x20
+uint8_t Peso;        // Address 0x30
+uint8_t Distancia;   // Address 0x40
+uint8_t Luz;         // Address 0x50
+//*****************************************************************************
 // Subrutina de Inicio
 //*****************************************************************************
 void Start(){
-  TRISA = 0;                    //PORTA as output
+  TRISA = 0;            //PORTA as output
   TRISD = 0;            //PORTD as output
-  //TRISB = 1;                    //Port B as input
-  //PORTB = 0;
   PORTA = 0;
   PORTD = 0;                
   I2C_Master_Init(100000);      //Initialize I2C Master with 100KHz clock
@@ -68,4 +73,69 @@ void Start(){
 
 void main(){
     Start();
-  }
+    while(1){
+    //Funcion Para declarar Nombres de Variables en la LCD
+      lcd_cursor(1,1);// Poner texto de cursor en posicion 1
+      lcd_palabra("Prf");
+      __delay_ms(10);
+      lcd_cursor(1,5);// Poner texto de cursor en posicion 2
+      lcd_palabra("Tmp");
+      __delay_ms(10);
+      lcd_cursor(1,9);// Poner texto de cursor en posicion 3
+      lcd_palabra("Kg");
+      __delay_ms(10);
+      lcd_cursor(1,12);// Poner texto de cursor en posicion 3
+      lcd_palabra("Cm");
+      __delay_ms(10);
+      lcd_cursor(1,15);// Poner texto de cursor en posicion 3
+      lcd_palabra("L");
+      __delay_ms(10);
+   
+    
+    //Funcion para llamar Valor de Profundidad del array de I2C  
+    I2C_Master_Start();         //Condicion de inicio
+    I2C_Master_Write(0x11);     //Address
+    Profundidad = I2C_Master_Read(0); //Mandar valor leido a variable
+    I2C_Master_Stop();          //Condicion de Fin
+    itoa(buffer,Profundidad,10);     //Convertir variable en String
+    lcd_cursor(2,8);            //Desplegar en LCD
+    lcd_palabra(buffer); 
+    
+    //Funcion para llamar Valor de Temperatura del array de I2C  
+    I2C_Master_Start();         //Condicion de inicio
+    I2C_Master_Write(0x21);     //Address
+    Temperatura = I2C_Master_Read(0); //Mandar valor leido a variable
+    I2C_Master_Stop();          //Condicion de Fin
+    itoa(buffer,Temperatura,10);     //Convertir variable en String
+    lcd_cursor(2,8);            //Desplegar en LCD
+    lcd_palabra(buffer); 
+    
+    //Funcion para llamar Valor de Peso del array de I2C  
+    I2C_Master_Start();         //Condicion de inicio
+    I2C_Master_Write(0x31);     //Address
+    Peso = I2C_Master_Read(0); //Mandar valor leido a variable
+    I2C_Master_Stop();          //Condicion de Fin
+    itoa(buffer,Peso,10);     //Convertir variable en String
+    lcd_cursor(2,8);            //Desplegar en LCD
+    lcd_palabra(buffer);
+    
+    //Funcion para llamar Valor de Distancia del array de I2C  
+    I2C_Master_Start();         //Condicion de inicio
+    I2C_Master_Write(0x41);     //Address
+    Distancia = I2C_Master_Read(0); //Mandar valor leido a variable
+    I2C_Master_Stop();          //Condicion de Fin
+    itoa(buffer,Distancia,10);     //Convertir variable en String
+    lcd_cursor(2,8);            //Desplegar en LCD
+    lcd_palabra(buffer);
+    
+    //Funcion para llamar Valor de el Sensor de Luz del array de I2C  
+    I2C_Master_Start();         //Condicion de inicio
+    I2C_Master_Write(0x51);     //Address
+    Luz = I2C_Master_Read(0); //Mandar valor leido a variable
+    I2C_Master_Stop();          //Condicion de Fin
+    itoa(buffer,Temperatura,10);     //Convertir variable en String
+    lcd_cursor(2,8);            //Desplegar en LCD
+    lcd_palabra(buffer);
+    }
+    }
+  

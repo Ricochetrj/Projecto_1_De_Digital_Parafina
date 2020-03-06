@@ -33,8 +33,7 @@
 #include <xc.h> // include processor files - each processor file is guarded.  
 //*****************************************************************************
 // Librerias
-//*****************************************************************************
-#include <xc.h> // include processor files - each processor file is guarded.  
+//*****************************************************************************  
 #include <stdint.h>
 #define _XTAL_FREQ 4000000
 #include <stdio.h>
