@@ -53,6 +53,8 @@ uint8_t Temperatura; // Address 0x20
 uint8_t Peso;        // Address 0x30
 uint8_t Distancia;   // Address 0x40
 uint8_t Luz;         // Address 0x50
+char d1,d2,d3;
+
 //*****************************************************************************
 // Subrutina de Inicio
 //*****************************************************************************
@@ -81,14 +83,14 @@ void main(){
       lcd_cursor(1,5);// Poner texto de cursor en posicion 2
       lcd_palabra("Tmp");
       __delay_ms(10);
-      lcd_cursor(1,9);// Poner texto de cursor en posicion 3
+      lcd_cursor(1,18);// Poner texto de cursor en posicion 3
       lcd_palabra("Kg");
       __delay_ms(10);
-      lcd_cursor(1,12);// Poner texto de cursor en posicion 3
+      lcd_cursor(1,8);// Poner texto de cursor en posicion 3
       lcd_palabra("Cm");
       __delay_ms(10);
-      lcd_cursor(1,15);// Poner texto de cursor en posicion 3
-      lcd_palabra("L");
+      lcd_cursor(1,12);// Poner texto de cursor en posicion 3
+      lcd_palabra("Luz");
       __delay_ms(10);
    
     
@@ -98,7 +100,7 @@ void main(){
     Profundidad = I2C_Master_Read(0); //Mandar valor leido a variable
     I2C_Master_Stop();          //Condicion de Fin
     itoa(buffer,Profundidad,10);     //Convertir variable en String
-    lcd_cursor(2,8);            //Desplegar en LCD
+    lcd_cursor(2,1);            //Desplegar en LCD
     lcd_palabra(buffer); 
     
     //Funcion para llamar Valor de Temperatura del array de I2C  
@@ -107,7 +109,7 @@ void main(){
     Temperatura = I2C_Master_Read(0); //Mandar valor leido a variable
     I2C_Master_Stop();          //Condicion de Fin
     itoa(buffer,Temperatura,10);     //Convertir variable en String
-    lcd_cursor(2,8);            //Desplegar en LCD
+    lcd_cursor(2,5);            //Desplegar en LCD
     lcd_palabra(buffer); 
     
     //Funcion para llamar Valor de Peso del array de I2C  
@@ -116,7 +118,7 @@ void main(){
     Peso = I2C_Master_Read(0); //Mandar valor leido a variable
     I2C_Master_Stop();          //Condicion de Fin
     itoa(buffer,Peso,10);     //Convertir variable en String
-    lcd_cursor(2,8);            //Desplegar en LCD
+    lcd_cursor(2,18);            //Desplegar en LCD
     lcd_palabra(buffer);
     
     //Funcion para llamar Valor de Distancia del array de I2C  
@@ -124,9 +126,14 @@ void main(){
     I2C_Master_Write(0x41);     //Address
     Distancia = I2C_Master_Read(0); //Mandar valor leido a variable
     I2C_Master_Stop();          //Condicion de Fin
-    itoa(buffer,Distancia,10);     //Convertir variable en String
-    lcd_cursor(2,8);            //Desplegar en LCD
-    lcd_palabra(buffer);
+     d1 = (Distancia/100)%10;
+     d2 = (Distancia/10)%10;
+     d3 = (Distancia/1)%10;
+    //itoa(buffer,Distancia,10);     //Convertir variable en String
+    lcd_cursor(2,10);            //Desplegar en LCD
+    lcd_char(d1+'0');
+    lcd_char(d2+'0');
+    lcd_char(d3+'0');     
     
     //Funcion para llamar Valor de el Sensor de Luz del array de I2C  
     I2C_Master_Start();         //Condicion de inicio
@@ -134,8 +141,11 @@ void main(){
     Luz = I2C_Master_Read(0); //Mandar valor leido a variable
     I2C_Master_Stop();          //Condicion de Fin
     itoa(buffer,Temperatura,10);     //Convertir variable en String
-    lcd_cursor(2,8);            //Desplegar en LCD
+    lcd_cursor(2,14);            //Desplegar en LCD
     lcd_palabra(buffer);
+    
+//    Lcd_Shift_Right();
+//    __delay_ms(10);
     }
     }
   
