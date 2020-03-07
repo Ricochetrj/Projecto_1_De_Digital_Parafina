@@ -1,5 +1,5 @@
 /****************************************
-    * File:    ADC.c                *
+    * File:    Projecto_1_Laser.c                *
      * Date:    23/02/2020                   *
      * Author:  Rodrigo Figueroa             *
      * Prof:     Pablo Mazariegos            *
@@ -51,6 +51,8 @@
 #include <xc.h>
 #include <stdint.h>
 #include "ProjectoLaser.h"
+#define Motor RB6
+#define Stop RB5
 //*****************************************************************************
 // Variables
 //*****************************************************************************
@@ -108,15 +110,19 @@ void __interrupt() isr(void)
 //*****************************************************************************
 void main(void) {
     I2C_Slave_Init(0x50); //Iniciar PIC como Esclavo
-    TRISB = 0b10000000;
+    TRISB = 0b10100000;
     ANSELH = 0;
     PORTB = 0;
+    Motor =0;
+    Stop  = 0;
     while(1){
         if(Laser == 1){
             confirm = 0;
+            Motor = 1;
         }
         if(Laser == 0){
             confirm = 1;
+            Motor =0;
         }
     }
 }

@@ -250,8 +250,8 @@ void I2C_Slave_Init(short address)
 // Funciones del ADC
 //*****************************************************************************
 void ADCinit(void){
-    ADCON1bits.ADFM =0;// Justificacion izquierda y voltajes de referencia VDD y VSS
-    ADCON1bits.VCFG0 =0;
+    ADCON1bits.ADFM =0;// Justificacion izquierda y voltajes de referencia Vref y VSS
+    ADCON1bits.VCFG0 =1;
     ADCON1bits.VCFG1 =0;
     ADCON0bits.ADCS0 =1;// Iniciar ADC y determinar como va a leer
     ADCON0bits.ADCS1 =0;

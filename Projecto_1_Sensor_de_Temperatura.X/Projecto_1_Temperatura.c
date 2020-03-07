@@ -23,7 +23,7 @@
      * 
      * 
      *
-     * Link al Github: https://github.com/Ricochetrj/Lab_5_I2C.git
+     * Link al Github: https://github.com/Ricochetrj/Projecto_1_De_Digital_Parafina.git
      * 
      ****************************************/ 
 
@@ -109,6 +109,8 @@ void main(void) {
     TRISB = 0b10100000;//Inicializar Puerto
     ANSELH = 0b00100000;
     PORTB = 0;
+    TRISA = 0b00001000;
+    PORTA = 0;
     while(1){
         ADCread();// Leer Valor analogico del puerto y mandarlo al maestro
         Temp = voltaje;

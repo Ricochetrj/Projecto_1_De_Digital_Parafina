@@ -62,7 +62,9 @@ void Start(){
   TRISA = 0;            //PORTA as output
   TRISD = 0;            //PORTD as output
   PORTA = 0;
-  PORTD = 0;                
+  PORTD = 0;      
+  TRISB =  0;
+  PORTB = 0;
   I2C_Master_Init(100000);      //Initialize I2C Master with 100KHz clock
   lcd_init();
   lcd_clear();
@@ -117,12 +119,19 @@ void main(){
     I2C_Master_Write(0x21);     //Address
     Temperatura = I2C_Master_Read(0); //Mandar valor leido a variable
     I2C_Master_Stop();          //Condicion de Fin
-    Thermistor(Temperatura);           //Transformar variable en Temperatura
+    //Thermistor(Temperatura);           //Transformar variable en Temperatura
+    Rtemp =Temperatura*150/255;
     itoa(buffer,Rtemp,10);      //Convertir en String
     lcd_cursor(2,5);            //Desplegar en LCD
     lcd_palabra(buffer); 
-    lcd_cursor(2,8);
+    lcd_cursor(2,7);
     lcd_palabra("C");
+    if(Rtemp< 45){
+        PORTBbits.RB7= 1;
+    }
+    if(Rtemp> 45){
+        PORTBbits.RB7= 0;
+    }
     
     //Funcion para llamar Valor de Peso del array de I2C  
     I2C_Master_Start();         //Condicion de inicio
