@@ -50,7 +50,7 @@
 //*****************************************************************************
 uint8_t Profundidad; // Address 0x10
 uint8_t Temperatura; // Address 0x20
-uint8_t Peso;        // Address 0x30
+uint8_t Fuego;        // Address 0x30
 uint8_t Distancia;   // Address 0x40
 uint8_t Luz;         // Address 0x50
 char d1,d2,d3;
@@ -86,21 +86,23 @@ double Thermistor(int temperatura){
 
 void main(){
     Start();
+    lcd_clear();
     while(1){
+        
     //Funcion Para declarar Nombres de Variables en la LCD
       lcd_cursor(1,1);// Poner texto de cursor en posicion 1
-      lcd_palabra("Prf");
+      lcd_palabra("Agua");
       __delay_ms(10);
-      lcd_cursor(1,5);// Poner texto de cursor en posicion 2
-      lcd_palabra("Tmp");
+      lcd_cursor(1,6);// Poner texto de cursor en posicion 2
+      lcd_palabra("Temperatura");
       __delay_ms(10);
       lcd_cursor(1,18);// Poner texto de cursor en posicion 3
-      lcd_palabra("Kg");
+      lcd_palabra("Incendio");
       __delay_ms(10);
-      lcd_cursor(1,10);// Poner texto de cursor en posicion 3
-      lcd_palabra("Cm");
+      lcd_cursor(1,27);// Poner texto de cursor en posicion 3
+      lcd_palabra("Distancia");
       __delay_ms(10);
-      lcd_cursor(1,14);// Poner texto de cursor en posicion 3
+      lcd_cursor(1,36);// Poner texto de cursor en posicion 3
       lcd_palabra("Luz");
       __delay_ms(10);
    
@@ -113,6 +115,8 @@ void main(){
     itoa(buffer,Profundidad,10);     //Convertir variable en String
     lcd_cursor(2,1);            //Desplegar en LCD
     lcd_palabra(buffer); 
+    lcd_cursor(2,2);
+    lcd_palabra("Cm");
     
     //Funcion para llamar Valor de Temperatura del array de I2C  
     I2C_Master_Start();         //Condicion de inicio
@@ -122,25 +126,30 @@ void main(){
     //Thermistor(Temperatura);           //Transformar variable en Temperatura
     Rtemp =Temperatura*150/255;
     itoa(buffer,Rtemp,10);      //Convertir en String
-    lcd_cursor(2,5);            //Desplegar en LCD
+    lcd_cursor(2,9);            //Desplegar en LCD
     lcd_palabra(buffer); 
-    lcd_cursor(2,7);
+    lcd_cursor(2,11);
     lcd_palabra("C");
-    if(Rtemp< 45){
+    if(Rtemp< 35){
         PORTBbits.RB7= 1;
     }
-    if(Rtemp> 45){
+    if(Rtemp>= 35){
         PORTBbits.RB7= 0;
     }
     
-    //Funcion para llamar Valor de Peso del array de I2C  
+    //Funcion para llamar Valor de el Sensor de Incendios del array de I2C  
     I2C_Master_Start();         //Condicion de inicio
     I2C_Master_Write(0x31);     //Address
-    Peso = I2C_Master_Read(0); //Mandar valor leido a variable
+    Fuego = I2C_Master_Read(0); //Mandar valor leido a variable
     I2C_Master_Stop();          //Condicion de Fin
-    itoa(buffer,Peso,10);     //Convertir variable en String
-    lcd_cursor(2,18);            //Desplegar en LCD
-    lcd_palabra(buffer);
+    if(Fuego == 100){
+        lcd_cursor(2,20);            //Desplegar en LCD
+    lcd_palabra("Fuego");
+    }
+    else if(Fuego == 0){
+        lcd_cursor(2,20);            //Desplegar en LCD
+        lcd_palabra("Safe");
+    }
     
     //Funcion para llamar Valor de Distancia del array de I2C  
     I2C_Master_Start();         //Condicion de inicio
@@ -151,7 +160,7 @@ void main(){
      d2 = (Distancia/10)%10;
      d3 = (Distancia/1)%10;
     //itoa(buffer,Distancia,10);     //Convertir variable en String
-    lcd_cursor(2,10);            //Desplegar en LCD
+    lcd_cursor(2,30);            //Desplegar en LCD
     lcd_char(d1+'0');
     lcd_char(d2+'0');
     lcd_char(d3+'0');     
@@ -162,19 +171,24 @@ void main(){
     Luz = I2C_Master_Read(0); //Mandar valor leido a variable
     I2C_Master_Stop();          //Condicion de Fin
     if(Luz == 1){
-        lcd_cursor(2,15);            //Desplegar en LCD
+        lcd_cursor(2,39);            //Desplegar en LCD
     lcd_palabra("Si");
+    PORTBbits.RB6 = 1;
+    __delay_ms(10);
+    PORTBbits.RB6 = 0;
         
     }
     if(Luz == 0){
-        lcd_cursor(2,15);            //Desplegar en LCD
+        lcd_cursor(2,37);            //Desplegar en LCD
     lcd_palabra("No");
+    PORTBbits.RB6 = 0;
         
     }
     
     
-//    Lcd_Shift_Right();
-//    __delay_ms(10);
+//    lcd_clear();
+    LCD_SCREEN_SHIFT(1);//mover a la izqueierda
+    __delay_ms(200);
     }
     }
   

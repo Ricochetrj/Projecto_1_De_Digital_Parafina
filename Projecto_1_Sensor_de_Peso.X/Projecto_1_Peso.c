@@ -106,13 +106,18 @@ void __interrupt() isr(void)
 //*****************************************************************************
 void main(void) {
     ADCinit(); //Iniciar ADC
-    I2C_Slave_Init(0x70); //Iniciar PIC como Esclavo
-    TRISB = 0b00100000;
-    ANSELH = 0b00100000;
+    I2C_Slave_Init(0x30); //Iniciar PIC como Esclavo
+    TRISB = 0b10000000;
+    ANSELH = 0;
     PORTB = 0;
-    ADCON0bits.CHS = 13;
     while(1){
-        ADCread(); //leer valor de ADC y mandarlo en la  interrupcion
-        adcsend = voltaje;
+        if(PORTBbits.RB7 == 1){
+            adcsend = 100;
+            PORTBbits.RB6 = 1;
+        }
+        else if (PORTBbits.RB7== 0){
+            adcsend = 0;
+            PORTBbits.RB6 = 0;
+        }
     }
 }

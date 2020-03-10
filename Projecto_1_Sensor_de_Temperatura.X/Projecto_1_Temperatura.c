@@ -1,5 +1,5 @@
 /****************************************
-    * File:    ADC.c                *
+    * File:    Projecto_1_Temperatura.c                *
      * Date:    23/02/2020                   *
      * Author:  Rodrigo Figueroa             *
      * Prof:     Pablo Mazariegos            *

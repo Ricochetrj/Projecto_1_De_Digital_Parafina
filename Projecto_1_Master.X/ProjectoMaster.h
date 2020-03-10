@@ -207,6 +207,10 @@ void Lcd_Shift_Left() // Correr la Pantalla a la izquierda
 	lcd_comando(0x01);
 	lcd_comando(0x08);
 }
+void LCD_SCREEN_SHIFT(unsigned char direction)
+{
+    lcd_comando(0b00011000 | direction);    //Sends command to shift display
+}                                            //Bit 2 = 0 = Shift right. //Bit 2 = 1 = Shift left
 //*****************************************************************************
 // Funciones Adicionales
 //*****************************************************************************
