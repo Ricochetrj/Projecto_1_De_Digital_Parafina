@@ -106,7 +106,7 @@ void __interrupt() isr(void)
 //Le avisamos al master que hay un incendio, si mande un 0, le avisamos al master
 //que esta a salvo. Tambien se tiene la opcion de encender una alarma 
 //*****************************************************************************
-#define ServoOut2 PORTBbits.RB4
+#define ServoOut2 PORTDbits.RD2
 #define Control PORTBbits.RB5
 void ZeroGrados2(void) //0 Degree
 {
@@ -134,7 +134,8 @@ void NoventaGrados2(void) //90 Degree
 
 void main(void) {
     I2C_Slave_Init(0x30); //Iniciar PIC como Esclavo
-    TRISB = 0b10000000;
+    TRISB = 0b10100000;
+    TRISD = 0;
     ANSELH = 0;
     PORTB = 0;
     while(1){

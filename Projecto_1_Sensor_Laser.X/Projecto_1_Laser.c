@@ -52,7 +52,11 @@
 #include <stdint.h>
 #include "ProjectoLaser.h"
 #define Motor RB6
+#define SMotor1 RB4
+#define SMotor2 RB3
+#define SMotor3 RB2
 #define Stop RB5
+#define Laser RB7
 //*****************************************************************************
 // Variables
 //*****************************************************************************
@@ -61,7 +65,8 @@ uint8_t adcval;
 uint8_t masterval;
 int adcsend;
 uint8_t confirm;
-#define Laser RB7
+
+
 //*****************************************************************************
 // Interrupcion de Esclavo
 //*****************************************************************************
@@ -111,18 +116,23 @@ void __interrupt() isr(void)
 void main(void) {
     I2C_Slave_Init(0x50); //Iniciar PIC como Esclavo
     TRISB = 0b10100000;
+    TRISD = 0;
     ANSELH = 0;
     PORTB = 0;
     Motor =0;
     Stop  = 0;
     while(1){
         if(Laser == 1){
-            confirm = 0;
             Motor = 1;
+            //SMotor1 = 1;
+            //SMotor2 = 1;
+            SMotor3 = 0;
         }
         if(Laser == 0){
-            confirm = 1;
             Motor =0;
+            //SMotor1 = 0;
+            //SMotor2 = 0;
+            SMotor3 = 1;
         }
     }
 }
