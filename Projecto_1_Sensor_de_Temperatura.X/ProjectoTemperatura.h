@@ -1,31 +1,32 @@
-/****************************************
-    * File:    Master_main.c                 *
-     * Date:    23/02/2020                   *
-     * Author:  Rodrigo Figueroa             *
-     * Prof:     Pablo Mazariegos            *
-     * Seccion:     20                       *
-     * Clase:   Digital 2                    *
-     * Compiler:    MPLAB XC8 v2.10          *
-     * Arquitectura:    PIC16F887            *
-     * Descripcion:  Projecto en donde un PIC maestro controla a otros 3 PICs
- *  Utilizando Comunicacion I2C
-     * 
-     * 
-     * Asignacion de Pins:
-     * Puerto B = Nada
-     *          
-     * Puerto A = Salida de Pines D0-D7 de la LCD
-     * 
-     * Puerto C = Salida de Clock y entrada de datos de los Slaves
-     * 
-     * Puerto D = Pines RS y E de la LCD
-     *                      
-     * 
-     * 
-     *
-     * Link al Github: https://github.com/Ricochetrj/Projecto_1_De_Digital_Parafina.git
-     * 
-     ****************************************/ 
+/********************************************************************************************
+    * File:    ProjectoTemperatura.h                                                        * 
+     * Date:    23/02/2020                                                                  *
+     * Autores:  Rodrigo Figueroa, Gonzalo Palarea, Stefan Schwendenner                     *
+     * Prof:     Pablo Mazariegos                                                           *
+     * Seccion:     20                                                                      *
+     * Clase:   Digital 2                                                                   *
+     * Compiler:    MPLAB XC8 v2.10                                                         *
+     * Arquitectura:    PIC16F887                                                           *
+     * Descripcion:  Projecto 1 de Digital, en donde este PIC atravez de I2C recibe         *
+     * Datos de 5 sensores, los despliega en una LCD, y los Manda atravez de UART a otro PIC*  
+     *                                                                                      *
+     *                                                                                      *
+     * Asignacion de Pins:                                                                  *
+     * Puerto B = Entrada del ADC RB5                                                       *
+     *                                                                                      *
+     *                                                                                      *
+     *                                                                                      *
+     * Puerto C = Salida de Clock y Salida de datos de los Datos  RC4,RC3                   *
+     *                                                                                      *
+     *                                                                                      *
+     *                                                                                      *
+     *                                                                                      *
+     *                                                                                      *
+     *                                                                                      *
+     *                                                                                      *
+     * Link al Github: https://github.com/Ricochetrj/Projecto_1_De_Digital_Parafina.git     *
+     *                                                                                      *
+     ****************************************************************************************/ 
 #ifndef PROJECTOTEMPERATURA_H
 #define	PROJECTOTEMPERATURA_H
 

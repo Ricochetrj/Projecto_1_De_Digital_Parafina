@@ -1,21 +1,23 @@
 /****************************************
     * File:    Projecto_1_Master.c                 *
-     * Date:    04/03/2020                   *
-     * Author:  Rodrigo Figueroa             *
+     * Date:    23/02/2020                   *
+     * Autores:  Rodrigo Figueroa, Gonzalo Palarea, Stefan Schwendenner             *
      * Prof:     Pablo Mazariegos            *
      * Seccion:     20                       *
      * Clase:   Digital 2                    *
      * Compiler:    MPLAB XC8 v2.10          *
      * Arquitectura:    PIC16F887            *
-     * Descripcion:  
+     * Descripcion:  Projecto 1 de Digital, en donde este PIC atravez de I2C recibe
+     * Datos de 5 sensores, los despliega en una LCD, y los Manda atravez de UART a otro PIC  
      * 
      * 
      * Asignacion de Pins:
-     * Puerto B = Nada
+     * Puerto B = Pines de Control para la banda, RB7,RB6,RB5
      *          
      * Puerto A = Salida de Pines D0-D7 de la LCD
      * 
-     * Puerto C = Salida de Clock y entrada de datos de los Slaves
+     * Puerto C = Salida de Clock y entrada de datos de los Slaves, Salida de UART
+     *RC7,RC6,RC4,RC3  
      * 
      * Puerto D = Pines RS y E de la LCD
      *                      
@@ -42,7 +44,9 @@
 #pragma config BOR4V = BOR40V   // Brown-out Reset Selection bit (Brown-out Reset set to 4.0V)
 #pragma config WRT = OFF        // Flash Program Memory Self Write Enable bits (Write protection off)
 
-
+//*****************************************************************************
+// Declaracion de Librerias
+//*****************************************************************************
 #include <xc.h>
 #include "ProjectoMaster.h"
 //*****************************************************************************
@@ -59,29 +63,21 @@ double Rtemp;
 // Subrutina de Inicio
 //*****************************************************************************
 void Start(){
-  TRISA = 0;            //PORTA as output
-  TRISD = 0;            //PORTD as output
-  PORTA = 0;
+  TRISA = 0;//PORTA as output
+  TRISD = 0;//PORTD as output
+  PORTA = 0;//Inicializar Puerto A 
   PORTD = 0;      
   TRISB =  0;
   PORTB = 0;
   I2C_Master_Init(100000);      //Initialize I2C Master with 100KHz clock
+  UARTInit(9600,1); //Iniciar UART en baudrate de 9600, en HS mode
   lcd_init();
   lcd_clear();
   
   __delay_ms(250);
 }
 
-//*****************************************************************************
-// Ecuacion Steinheart-Hart Para conversion de la temperatura
-//*****************************************************************************
-double Thermistor(int temperatura){
-    double tempura;
-    tempura = log(((10240000/temperatura)-1000));
-    tempura = 1 / (0.001129148 + (0.000234125 * tempura) + (0.0000000876741 * tempura * tempura * tempura));
-    tempura = tempura - 273.15;           // Convert Kelvin to Celcius
-    Rtemp =  abs(tempura);
-}
+
 
 
 void main(){
@@ -89,69 +85,100 @@ void main(){
     lcd_clear();
     while(1){
         
-    //Funcion Para declarar Nombres de Variables en la LCD
+//*****************************************************************************
+// 1-Declaramos Las ubicaciones para todas Las variables y nombres de los Sensores 
+//*****************************************************************************
       lcd_cursor(1,1);// Poner texto de cursor en posicion 1
       lcd_palabra("Agua");
       __delay_ms(10);
-      lcd_cursor(1,6);// Poner texto de cursor en posicion 2
-      lcd_palabra("Temperatura");
+      lcd_cursor(1,8);// Poner texto de cursor en posicion 2
+      lcd_palabra("Temp");
       __delay_ms(10);
-      lcd_cursor(1,18);// Poner texto de cursor en posicion 3
-      lcd_palabra("Incendio");
+      lcd_cursor(1,13);// Poner texto de cursor en posicion 3
+      lcd_palabra("Fire");
       __delay_ms(10);
-      lcd_cursor(1,27);// Poner texto de cursor en posicion 3
-      lcd_palabra("Distancia");
+      lcd_cursor(1,19);// Poner texto de cursor en posicion 3
+      lcd_palabra("Cera");
       __delay_ms(10);
-      lcd_cursor(1,36);// Poner texto de cursor en posicion 3
-      lcd_palabra("Luz");
+      lcd_cursor(1,25);// Poner texto de cursor en posicion 3
+      lcd_palabra("Banda");
       __delay_ms(10);
    
     
-    //Funcion para llamar Valor de Profundidad del array de I2C  
+//*****************************************************************************
+// 2-Sensor de Profundidad-Mandamos a Llamar por I2C al sensor de profundidad de
+// Agua y recibimos el valor que manda el sensor, si el valor esta por debajo de
+//un limite, le  pedimos al usuario que rellene la cubeta con agua. Desplegamos
+//El estado del agua de la cubeta en la LCD. Por ultimo mandamos el dato por UART
+//*****************************************************************************  
     I2C_Master_Start();         //Condicion de inicio
     I2C_Master_Write(0x11);     //Address
     Profundidad = I2C_Master_Read(0); //Mandar valor leido a variable
     I2C_Master_Stop();          //Condicion de Fin
     itoa(buffer,Profundidad,10);     //Convertir variable en String
+    if(Profundidad < 4){
     lcd_cursor(2,1);            //Desplegar en LCD
-    lcd_palabra(buffer); 
-    lcd_cursor(2,2);
-    lcd_palabra("Cm");
-    
-    //Funcion para llamar Valor de Temperatura del array de I2C  
+    lcd_palabra("Refill"); 
+    }
+    if(Profundidad >= 4){
+    lcd_cursor(2,1);            //Desplegar en LCD
+    lcd_palabra("OK"); 
+    }
+    UART_Write_Text(buffer);
+//*****************************************************************************
+// 3-Sensor de Temperatura-Mandamos a llamar por I2C al sensor de Temperatura y 
+//Recibimos el Valor analogico de Temperatura. Usando un factor de conversion,
+//convertimos el valor a la temperatura actual. Desplegamos la Temperatura en Pantalla
+//y luego revisamos una condicion de temperatura que controla el relay que enciende y apaga
+//la resistencia termica.Luego Mandamos el Valor por UART de temperatura
+//*****************************************************************************
     I2C_Master_Start();         //Condicion de inicio
     I2C_Master_Write(0x21);     //Address
     Temperatura = I2C_Master_Read(0); //Mandar valor leido a variable
     I2C_Master_Stop();          //Condicion de Fin
-    //Thermistor(Temperatura);           //Transformar variable en Temperatura
     Rtemp =Temperatura*150/255;
     itoa(buffer,Rtemp,10);      //Convertir en String
     lcd_cursor(2,9);            //Desplegar en LCD
     lcd_palabra(buffer); 
     lcd_cursor(2,11);
     lcd_palabra("C");
-    if(Rtemp< 35){
+    if(Rtemp< 45){
         PORTBbits.RB7= 1;
     }
-    if(Rtemp>= 35){
+    if(Rtemp>= 45){
         PORTBbits.RB7= 0;
+        //__delay_ms(10000);//delay de 10 segundos 
     }
+    UART_Write_Text(buffer);
     
-    //Funcion para llamar Valor de el Sensor de Incendios del array de I2C  
+//*****************************************************************************
+// 4-Sensor de Incendios- Mandamos a llamar por I2C al sensor de Incendios y 
+//Recibimos el Valor Digital. Si el sensor detecta un incendio, desplegarlo en la
+//Pantalla y encender una alarma. Luego mandar el estado del sistema por UART
+//***************************************************************************** 
     I2C_Master_Start();         //Condicion de inicio
     I2C_Master_Write(0x31);     //Address
     Fuego = I2C_Master_Read(0); //Mandar valor leido a variable
     I2C_Master_Stop();          //Condicion de Fin
     if(Fuego == 100){
-        lcd_cursor(2,20);            //Desplegar en LCD
-    lcd_palabra("Fuego");
+        PORTBbits.RB6 = 0;      //Apagar la Alarma
+        lcd_cursor(2,13);            //Desplegar en LCD
+        lcd_palabra("Safe");
+        UART_Write_Text("Safe");
     }
     else if(Fuego == 0){
-        lcd_cursor(2,20);            //Desplegar en LCD
-        lcd_palabra("Safe");
+        PORTBbits.RB6 = 1;      //Prender la Alarma
+        lcd_cursor(2,13);            //Desplegar en LCD
+        lcd_palabra("Fuego");
+        UART_Write_Text("Fuego");
     }
     
-    //Funcion para llamar Valor de Distancia del array de I2C  
+    
+//*****************************************************************************
+// 5-Sensor Ultrasonico- Mandamos a llamar el valor de distancia por I2C. Recibimos
+//el valor de 3 digitos y lo separamos en unidades y deceneas. Lo desplegamos en la
+//LCD. Luego mandamos el valor de distancia por UART
+//*****************************************************************************  
     I2C_Master_Start();         //Condicion de inicio
     I2C_Master_Write(0x41);     //Address
     Distancia = I2C_Master_Read(0); //Mandar valor leido a variable
@@ -159,36 +186,42 @@ void main(){
      d1 = (Distancia/100)%10;
      d2 = (Distancia/10)%10;
      d3 = (Distancia/1)%10;
-    //itoa(buffer,Distancia,10);     //Convertir variable en String
-    lcd_cursor(2,30);            //Desplegar en LCD
+    itoa(buffer,Distancia,10);     //Convertir variable en String
+    lcd_cursor(2,19);            //Desplegar en LCD
     lcd_char(d1+'0');
     lcd_char(d2+'0');
-    lcd_char(d3+'0');     
+    lcd_char(d3+'0');   
+    lcd_cursor(2,22);            //Desplegar en LCD
+    lcd_palabra("Cm");
+    UART_Write_Text(buffer);
     
-    //Funcion para llamar Valor de el Sensor de Luz del array de I2C  
+//*****************************************************************************
+// 6-Sensor Infrarojo-Mandamos a llamar el estado del sensor por I2C y desplegamos
+//En la LCD si la banda se esta moviendo o si esta detenida, dependiendo de el estado 
+//del sensor. Luego mandamos el estado de la banda por UART
+//*****************************************************************************
     I2C_Master_Start();         //Condicion de inicio
     I2C_Master_Write(0x51);     //Address
     Luz = I2C_Master_Read(0); //Mandar valor leido a variable
     I2C_Master_Stop();          //Condicion de Fin
     if(Luz == 1){
-        lcd_cursor(2,39);            //Desplegar en LCD
-    lcd_palabra("Si");
-    PORTBbits.RB6 = 1;
-    __delay_ms(10);
-    PORTBbits.RB6 = 0;
-        
+    lcd_cursor(2,25);            //Desplegar en LCD
+    lcd_palabra("Detener");
+    UART_Write_Text("Detener");   
     }
     if(Luz == 0){
-        lcd_cursor(2,37);            //Desplegar en LCD
-    lcd_palabra("No");
-    PORTBbits.RB6 = 0;
+    lcd_cursor(2,25);            //Desplegar en LCD
+    lcd_palabra("Mover");
+    UART_Write_Text("Mover");
         
     }
     
     
-//    lcd_clear();
-    LCD_SCREEN_SHIFT(1);//mover a la izqueierda
-    __delay_ms(200);
+//*****************************************************************************
+// Movemos la pantalla a la izquierda en cada ciclo
+//*****************************************************************************
+    LCD_SCREEN_SHIFT(1);//mover a la izquierda
+    __delay_ms(20);
     }
     }
   

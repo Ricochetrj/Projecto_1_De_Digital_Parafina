@@ -1,5 +1,5 @@
 /********************************************************************************************
-    * File:    Projecto_1_Profundidad.c                                                        * 
+    * File:    Projecto_1_Peso.c                                                            * 
      * Date:    23/02/2020                                                                  *
      * Autores:  Rodrigo Figueroa, Gonzalo Palarea, Stefan Schwendenner                     *
      * Prof:     Pablo Mazariegos                                                           *
@@ -42,6 +42,8 @@
 #pragma config IESO = OFF       // Internal External Switchover bit (Internal/External Switchover mode is disabled)
 #pragma config FCMEN = OFF      // Fail-Safe Clock Monitor Enabled bit (Fail-Safe Clock Monitor is disabled)
 #pragma config LVP = OFF        // Low Voltage Programming Enable bit (RB3 pin has digital I/O, HV on MCLR must be used for programming)
+
+// CONFIG2
 #pragma config BOR4V = BOR40V   // Brown-out Reset Selection bit (Brown-out Reset set to 4.0V)
 #pragma config WRT = OFF        // Flash Program Memory Self Write Enable bits (Write protection off)
 //*****************************************************************************
@@ -49,17 +51,15 @@
 //*****************************************************************************
 #include <xc.h>
 #include <stdint.h>
-#include "ProjectoProfundidad.h"
+#include "ProjectoIncendio.h"
 //*****************************************************************************
 // Variables
 //*****************************************************************************
 short z;
-uint8_t adcval;
 uint8_t masterval;
-uint8_t deep;
 int adcsend;
 //*****************************************************************************
-// Interrupcion de Esclavo- Por Ligo George
+// Interrupcion de Esclavo
 //*****************************************************************************
 void __interrupt() isr(void)
 {
@@ -89,7 +89,7 @@ void __interrupt() isr(void)
   {
     z = SSPBUF;
     BF = 0;
-    SSPBUF = deep;
+    SSPBUF = adcsend;
     SSPCONbits.CKP = 1;
      __delay_us(250);
     while(SSPSTATbits.BF);
@@ -102,37 +102,59 @@ void __interrupt() isr(void)
 
 
 //*****************************************************************************
-// Funcion Principal- Leemos el valor del ADC y utilizando 5 rangos definimos
-// la profundidad del sensor, luego mandamos el valor de profundidad en cm al
-// master en la interrupcion
+// Funcion Principal- Leemos el Digital del Sensor de incendios, Si manda un 1
+//Le avisamos al master que hay un incendio, si mande un 0, le avisamos al master
+//que esta a salvo. Tambien se tiene la opcion de encender una alarma 
 //*****************************************************************************
+#define ServoOut2 PORTBbits.RB4
+#define Control PORTBbits.RB5
+void ZeroGrados2(void) //0 Degree
+{
+  unsigned int i;
+  for(i=0;i<50;i++)
+  {
+    ServoOut2 = 1;
+    __delay_us(900);
+    ServoOut2 = 0;
+    __delay_us(19100);
+  }
+}
+
+void NoventaGrados2(void) //90 Degree
+{
+  unsigned int i;
+  for(i=0;i<30;i++)
+  {
+    ServoOut2 = 1;
+    __delay_us(1500);
+    ServoOut2 = 0;
+    __delay_us(18500);
+  }
+}
+
 void main(void) {
-    ADCinit(); //Iniciar ADC
-    I2C_Slave_Init(0x10); //Iniciar PIC como Esclavo
-    TRISB = 0b00100000;
-    ANSELH = 0b00100000;
+    I2C_Slave_Init(0x30); //Iniciar PIC como Esclavo
+    TRISB = 0b10000000;
+    ANSELH = 0;
     PORTB = 0;
-    ADCON0bits.CHS = 13;
     while(1){
-        ADCread(); //leer valor de ADC y mandarlo en la  interrupcion
-        adcsend = voltaje;
-        if(adcsend<100){
-            deep = 0;
+      
+        if(Control == 0){
+            NoventaGrados2();
         }
-        if(adcsend<110 && adcsend>100){
-            deep = 1;
+        
+        if(Control == 1){
+            ZeroGrados2();
         }
-        if(adcsend<120 && adcsend>110){
-            deep = 2;
+        
+        if(PORTBbits.RB7 == 1){
+            adcsend = 100;
+            PORTBbits.RB6 = 1;
         }
-        if(adcsend<130 && adcsend>120){
-            deep = 3;
+        else if (PORTBbits.RB7== 0){
+            adcsend = 0;
+            PORTBbits.RB6 = 0;
         }
-        if(adcsend<140 && adcsend>130){
-            deep = 4;
-        }
-        if(adcsend>140){
-            deep = 5;
-        }
-    }
+    
+}
 }

@@ -1,44 +1,56 @@
 
-/****************************************
-    * File:    Master_main.c                 *
-     * Date:    23/02/2020                   *
-     * Author:  Rodrigo Figueroa             *
-     * Prof:     Pablo Mazariegos            *
-     * Seccion:     20                       *
-     * Clase:   Digital 2                    *
-     * Compiler:    MPLAB XC8 v2.10          *
-     * Arquitectura:    PIC16F887            *
-     * Descripcion:  Projecto en donde un PIC maestro controla a otros 3 PICs
- *  Utilizando Comunicacion I2C
-     * 
-     * 
-     * Asignacion de Pins:
-     * Puerto B = Nada
-     *          
-     * Puerto A = Salida de Pines D0-D7 de la LCD
-     * 
-     * Puerto C = Salida de Clock y entrada de datos de los Slaves
-     * 
-     * Puerto D = Pines RS y E de la LCD
-     *                      
-     * 
-     * 
-     *
-     * Link al Github: https://github.com/Ricochetrj/Projecto_1_De_Digital_Parafina.git
-     * 
-     ****************************************/ 
+/********************************************************************************************
+    * File:    Master_main.c                                                                *
+     * Date:    23/02/2020                                                                  *
+     * Autores:  Rodrigo Figueroa, Gonzalo Palarea, Stefan Schwendenner                     *
+     * Prof:     Pablo Mazariegos                                                           *
+     * Seccion:     20                                                                      *
+     * Clase:   Digital 2                                                                   *
+     * Compiler:    MPLAB XC8 v2.10                                                         *
+     * Arquitectura:    PIC16F887                                                           *
+     * Descripcion:  Projecto 1 de Digital, en donde este PIC atravez de I2C recibe         *
+     * Datos de 5 sensores, los despliega en una LCD, y los Manda atravez de UART a otro PIC*  
+     *                                                                                      *
+     *                                                                                      *
+     * Asignacion de Pins:                                                                  *
+     * Puerto B = Pines de Control para la banda, RB7,RB6,RB5                               *
+     *                                                                                      *
+     * Puerto A = Salida de Pines D0-D7 de la LCD                                           *
+     *                                                                                      *
+     * Puerto C = Salida de Clock y entrada de datos de los Slaves, Salida de UART          *
+     *RC7,RC6,RC4,RC3                                                                       *
+     *                                                                                      *
+     * Puerto D = Pines RS y E de la LCD                                                    *
+     *                                                                                      *
+     *                                                                                      *
+     *                                                                                      *
+     *                                                                                      *
+     * Link al Github: https://github.com/Ricochetrj/Projecto_1_De_Digital_Parafina.git     *
+     *                                                                                      *
+     ****************************************************************************************/ 
+
+
+
+//*****************************************************************************
+// Definicion de Cabecera
+//*****************************************************************************
 #ifndef PROJECTOMASTER_H
 #define	PROJECTOMASTER_H
-
-#include <xc.h> // include processor files - each processor file is guarded.  
 //*****************************************************************************
 // Librerias
 //*****************************************************************************  
+#include <xc.h> 
 #include <stdint.h>
-#define _XTAL_FREQ 4000000
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+//*****************************************************************************
+// Frecuencia
+//*****************************************************************************  
+#define _XTAL_FREQ 4000000
+//*****************************************************************************
+// Variable
+//*****************************************************************************
 uint8_t valadc;
 float voltaje;
 unsigned char *buffer[10];
@@ -49,7 +61,7 @@ uint8_t i;
 #define RS PORTDbits.RD0
 #define EN PORTDbits.RD1
 //*****************************************************************************
-// Libreria I2C por George Ligo
+// Libreria I2C por George Ligo con Modificaciones por Pablo Mazariegos
 //*****************************************************************************
 void I2C_Master_Init(const unsigned long transmissionspeed)
 {
@@ -102,23 +114,20 @@ unsigned short I2C_Master_Read(unsigned short a)
   ACKEN = 1;          //Acknowledge sequence
   return temp;
 }
-//*****************************************************************************
-// Libreria ADC
-//*****************************************************************************
-unsigned char *buffer[10];
-uint8_t i;
-uint8_t valadc;
-float voltaje;
-void lcd_chara(uint8_t dato);
-void ftoa2(float n, char* res, int afterpoint);
-//void ADCinit(void){
-//    ADCON1bits.ADFM =0;// Justificacion izquierda y voltajes de referencia VDD y VSS
-//    ADCON1bits.VCFG0 =0;
-//    ADCON1bits.VCFG1 =0;
-//    ADCON0bits.ADCS0 =1;// Iniciar ADC y determinar como va a leer
-//    ADCON0bits.ADCS1 =0;
-//    ADCON0bits.ADON = 1;
-//                   }
+
+void I2C_Slave_Init(short address) 
+{
+  SSPSTAT = 0x80;    
+  SSPADD = address; //Setting address
+  SSPCON = 0x36;    //As a slave device
+  SSPCON2 = 0x01;
+  TRISC3 = 1;       //Setting as input as given in datasheet
+  TRISC4 = 1;       //Setting as input as given in datasheet
+  GIE = 1;          //Global interrupt enable
+  PEIE = 1;         //Peripheral interrupt enable
+  SSPIF = 0;        //Clear interrupt flag
+  SSPIE = 1;        //Synchronous serial port interrupt enable
+}
 //*****************************************************************************
 // Libreria LCD
 //*****************************************************************************
@@ -252,41 +261,76 @@ void ftoa2(float n, char* res, int afterpoint){
     }
 }
 
-void I2C_Slave_Init(short address) 
+
+//*****************************************************************************
+// Libreria UART por George Ligo
+//*****************************************************************************
+void UARTInit(const uint32_t baud_rate, const uint8_t BRGH) {
+    // Calculate BRG
+    if (BRGH == 0) {
+        SPBRG = _XTAL_FREQ/(64*baud_rate) - 1;
+        TXSTAbits.BRGH = 0;
+    } else {
+        SPBRG = _XTAL_FREQ/(16*baud_rate) - 1;
+        TXSTAbits.BRGH = 1;
+    }
+    // TXSTA register
+    TXSTAbits.TX9 = 0;      // 8-bit transmission
+    TXSTAbits.TXEN = 1;     // Enable transmission
+    TXSTAbits.SYNC = 0;     // Asynchronous mode
+    
+    // RCSTA register
+    RCSTAbits.SPEN = 1;     // Enable serial port
+    RCSTAbits.RX9 = 0;      // 8-bit reception
+    RCSTAbits.CREN = 1;     // Enable continuous reception
+    RCSTAbits.FERR = 0;     // Disable framing error
+    RCSTAbits.OERR = 0;     // Disable overrun error
+    
+    // Set up direction of RX/TX pins
+    //UART_TRIS_RX = 1;
+    //UART_TRIS_TX = 0;
+    TRISCbits.TRISC7 =0; //RX
+    TRISCbits.TRISC6 =1;//TX
+}
+char UART_TX_Empty()
 {
-  SSPSTAT = 0x80;    
-  SSPADD = address; //Setting address
-  SSPCON = 0x36;    //As a slave device
-  SSPCON2 = 0x01;
-  TRISC3 = 1;       //Setting as input as given in datasheet
-  TRISC4 = 1;       //Setting as input as given in datasheet
-  GIE = 1;          //Global interrupt enable
-  PEIE = 1;         //Peripheral interrupt enable
-  SSPIF = 0;        //Clear interrupt flag
-  SSPIE = 1;        //Synchronous serial port interrupt enable
+  return TRMT;
 }
 
-//*****************************************************************************
-// Funciones del ADC
-//*****************************************************************************
-void ADCinit(void){
-    ADCON1bits.ADFM =0;// Justificacion izquierda y voltajes de referencia VDD y VSS
-    ADCON1bits.VCFG0 =0;
-    ADCON1bits.VCFG1 =0;
-    ADCON0bits.ADCS0 =1;// Iniciar ADC y determinar como va a leer
-    ADCON0bits.ADCS1 =0;
-    ADCON0bits.ADON = 1;
-                   }
+char UART_Data_Ready()
+{
+   return RCIF;
+}
+char UART_Read()
+{
+ 
+  while(!RCIF);
+  return RCREG;
+}
 
+void UART_Read_Text(char *Output, unsigned int length)
+{
+	int i;
+	for(int i=0;i<length;i++)
+		Output[i] = UART_Read();
+}
 
-void ADCread(){ // Iniciar lectura de ADC, Esperar a que termine de leer, convertir dato de 0-1024 a 0-5 y desplegar los decimales en la LCD 
-    ADCON0bits.GO_DONE=1;
-    while(ADCON0bits.GO_DONE);
-    valadc= ADRESH;
-    voltaje=valadc;
-    //itoa(buffer,voltaje,10);
-    __delay_ms(50);
-    
+void UART_Write(char data)
+{
+  while(!TRMT);
+  TXREG = data;
+}
+
+void UART_Write_int(int data){
+    while(!TRMT);
+    TXREG = data;
+}
+
+void UART_Write_Text(char *text)
+{
+  int i;
+  for(i=0;text[i]!='\0';i++)
+	  UART_Write(text[i]);
 }
 #endif	/* PROJECTOMASTER_H */
 

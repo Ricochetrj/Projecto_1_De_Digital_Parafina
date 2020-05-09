@@ -1,5 +1,5 @@
 /********************************************************************************************
-    * File:    ProjectoProfundidad.h                                                        * 
+    * File:    ProjectoPeso.h                                                               *
      * Date:    23/02/2020                                                                  *
      * Autores:  Rodrigo Figueroa, Gonzalo Palarea, Stefan Schwendenner                     *
      * Prof:     Pablo Mazariegos                                                           *
@@ -26,15 +26,18 @@
      *                                                                                      *
      * Link al Github: https://github.com/Ricochetrj/Projecto_1_De_Digital_Parafina.git     *
      *                                                                                      *
-     ****************************************************************************************/
-#ifndef PROJECTOPROFUNDIDAD_H
-#define	PROJECTOPROFUNDIDAD_H 
+     ****************************************************************************************/ 
+//*****************************************************************************
+// Definicion de Cabecera
+//*****************************************************************************
+#ifndef PROJECTOPESO_H
+#define	PROJECTOPESO_H
 //*****************************************************************************
 // Librerias
 //*****************************************************************************
 #include <xc.h> // include processor files - each processor file is guarded.  
 #include <stdint.h>
-
+#define _XTAL_FREQ 4000000
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -43,14 +46,7 @@
 //*****************************************************************************
 #define _XTAL_FREQ 4000000
 //*****************************************************************************
-// Variables
-//*****************************************************************************
-uint8_t valadc;
-float voltaje;
-unsigned char *buffer[10];
-uint8_t i;
-//*****************************************************************************
-// Funcion de I2C por Ligo George
+// Libreria I2C por George Ligo
 //*****************************************************************************
 void I2C_Slave_Init(short address) 
 {
@@ -66,25 +62,5 @@ void I2C_Slave_Init(short address)
   SSPIE = 1;        //Synchronous serial port interrupt enable
 }
 
-//*****************************************************************************
-// Funciones del ADC
-//*****************************************************************************
-void ADCinit(void){
-    ADCON1bits.ADFM =0;// Justificacion izquierda y voltajes de referencia VDD y VSS
-    ADCON1bits.VCFG0 =0;
-    ADCON1bits.VCFG1 =0;
-    ADCON0bits.ADCS0 =1;// Iniciar ADC y determinar como va a leer
-    ADCON0bits.ADCS1 =0;
-    ADCON0bits.ADON = 1;
-                   }
 
-
-void ADCread(){ // Iniciar lectura de ADC, Esperar a que termine de leer, convertir dato de 0-1024 a 0-5 y desplegar los decimales en la LCD 
-    ADCON0bits.GO_DONE=1;
-    while(ADCON0bits.GO_DONE);
-    valadc= ADRESH;
-    voltaje=valadc;
-    //itoa(buffer,voltaje,10);
-    __delay_ms(50);
-}
-#endif	/* PROJECTOPROFUNDIDAD_H */
+#endif	/* PROJECTOPESO_H */
