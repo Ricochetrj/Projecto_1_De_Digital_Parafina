@@ -123,12 +123,14 @@ void main(void) {
     Stop  = 0;
     while(1){
         if(Laser == 1){
+            confirm = 0;
             Motor = 1;
             //SMotor1 = 1;
             //SMotor2 = 1;
             SMotor3 = 0;
         }
         if(Laser == 0){
+            confirm = 1;
             Motor =0;
             //SMotor1 = 0;
             //SMotor2 = 0;

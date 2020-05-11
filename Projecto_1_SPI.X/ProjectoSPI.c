@@ -69,8 +69,8 @@ void main(void) {
         PORTA = 0b00000001;
         
     }
-        PORTB = spiRead();
-        spiWrite(Prof);
+        //PORTB = spiRead();
+        //spiWrite(Prof);
         
         
     //////Temperatura
@@ -79,8 +79,8 @@ void main(void) {
         PORTA = 0b00000010;
         
     }
-        PORTB = spiRead();
-        spiWrite(Temp);
+        //PORTB = spiRead();
+        //spiWrite(Temp);
         
         
     /////Incendio
@@ -88,8 +88,8 @@ void main(void) {
         UART_Read_Text(Fuego,5);
         PORTA = 0b00000100;
     }
-        PORTB = spiRead();
-        spiWrite(Fuego);
+        //PORTB = spiRead();
+        //spiWrite(Fuego);
         
        
     ////////Distancia    
@@ -97,8 +97,8 @@ void main(void) {
         UART_Read_Text(Dist,3);
         PORTA = 0b00001000;
     }
-        PORTB = spiRead();
-        spiWrite(Dist);
+        //PORTB = spiRead();
+        //spiWrite(Dist);
         
         
     ///////Infrarojo    
@@ -107,8 +107,8 @@ void main(void) {
         PORTA = 0b00010000;
         
     }
-        PORTB = spiRead();
-        spiWrite(Luz);
+        //PORTB = spiRead();
+        //spiWrite(Luz);
         
 
     }

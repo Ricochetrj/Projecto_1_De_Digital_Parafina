@@ -221,7 +221,7 @@ void main(){
 // Movemos la pantalla a la izquierda en cada ciclo
 //*****************************************************************************
     LCD_SCREEN_SHIFT(1);//mover a la izquierda
-    __delay_ms(20);
+    __delay_ms(200);
     }
     }
   
