@@ -63,7 +63,9 @@ uint8_t tiempo;
 int adcsend;
 char d1,d2,d3;
 //*****************************************************************************
-// Interrupcion de Esclavo
+// Interrupcion de Esclavo: Interrupcion de esclavo que activa el buffer para  recibir la senal de reloj del master
+// Luego de recbir la senal de reloj del master espera para revisar si el master lo esta llamando por nombre
+//Una vez que el maestro lo llama, le escribe al maestro con la informacion almacenada el la variable 
 //*****************************************************************************
 void __interrupt() isr(void)
 {
@@ -106,7 +108,12 @@ void __interrupt() isr(void)
 
 
 //*****************************************************************************
-// Funcion Principal
+// Funcion Principal: Se manda un pulso al pin de trigger, luego de que se manda
+//el pulso al trigger, este emite un un pulso de sonido de alta frecuecia que es
+//inaudible. Luego el sensor espera a que regrese el echo de ese pulso, y cuando 
+//Recibe el echo y activa una senal en alto. Usando una funcion matematica que transforma
+//El tiempo transcurrido (Cuyo valor esta guardado en el Timer1)
+//a una distancia en cm, mandamos dicha informacion por I2C al Master.
 //*****************************************************************************
 void main(void) {
     I2C_Slave_Init(0x40); //Iniciar PIC como Esclavo

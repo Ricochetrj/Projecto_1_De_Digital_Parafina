@@ -218,7 +218,8 @@ void main(){
     
     
 //*****************************************************************************
-// Movemos la pantalla a la izquierda en cada ciclo
+// Movemos la pantalla a la izquierda en cada ciclo para poder mostrar la informacion 
+// De todos los sensores sin necesidad de acortar nombres en los displays
 //*****************************************************************************
     LCD_SCREEN_SHIFT(1);//mover a la izquierda
     __delay_ms(200);

@@ -66,49 +66,49 @@ void main(void) {
     ///////Profundidad
         if(UART_Data_Ready()){
         UART_Read_Text(Prof,2);
-        PORTA = 0b00000001;
+        PORTA = Prof;
         
     }
-        //PORTB = spiRead();
-        //spiWrite(Prof);
+        PORTB = spiRead();
+        spiWrite(Prof);
         
         
     //////Temperatura
         if(UART_Data_Ready()){
         UART_Read_Text(Temp,3);
-        PORTA = 0b00000010;
+        PORTA = Temp;
         
     }
-        //PORTB = spiRead();
-        //spiWrite(Temp);
+        PORTB = spiRead();
+        spiWrite(Temp);
         
         
     /////Incendio
         if(UART_Data_Ready()){
         UART_Read_Text(Fuego,5);
-        PORTA = 0b00000100;
+        PORTA = Fuego;
     }
-        //PORTB = spiRead();
-        //spiWrite(Fuego);
+        PORTB = spiRead();
+        spiWrite(Fuego);
         
        
     ////////Distancia    
         if(UART_Data_Ready()){
         UART_Read_Text(Dist,3);
-        PORTA = 0b00001000;
+        PORTA = Dist;
     }
-        //PORTB = spiRead();
-        //spiWrite(Dist);
+        PORTB = spiRead();
+        spiWrite(Dist);
         
         
     ///////Infrarojo    
         if(UART_Data_Ready()){
         UART_Read_Text(Luz,5);
-        PORTA = 0b00010000;
+        PORTA = Luz;
         
     }
-        //PORTB = spiRead();
-        //spiWrite(Luz);
+        PORTB = spiRead();
+        spiWrite(Luz);
         
 
     }

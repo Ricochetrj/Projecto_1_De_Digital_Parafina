@@ -59,7 +59,9 @@ uint8_t masterval;
 uint8_t TempD;
 uint8_t Temp;
 //*****************************************************************************
-// Interrupcion de Esclavo
+// Interrupcion de Esclavo: Interrupcion de esclavo que activa el buffer para  recibir la senal de reloj del master
+// Luego de recbir la senal de reloj del master espera para revisar si el master lo esta llamando por nombre
+//Una vez que el maestro lo llama, le escribe al maestro con la informacion almacenada el la variable 
 //*****************************************************************************
 void __interrupt() isr(void)
 {

@@ -59,7 +59,9 @@ short z;
 uint8_t masterval;
 int adcsend;
 //*****************************************************************************
-// Interrupcion de Esclavo
+// Interrupcion de Esclavo por Ligo George: Interrupcion de esclavo que activa el buffer para  recibir la senal de reloj del master
+// Luego de recbir la senal de reloj del master espera para revisar si el master lo esta llamando por nombre
+//Una vez que el maestro lo llama, le escribe al maestro con la informacion almacenada el la variable 
 //*****************************************************************************
 void __interrupt() isr(void)
 {
@@ -104,7 +106,11 @@ void __interrupt() isr(void)
 //*****************************************************************************
 // Funcion Principal- Leemos el Digital del Sensor de incendios, Si manda un 1
 //Le avisamos al master que hay un incendio, si mande un 0, le avisamos al master
-//que esta a salvo. Tambien se tiene la opcion de encender una alarma 
+//que esta a salvo. Tambien se tiene la opcion de encender una alarma. Tambien usamos
+//este microcontrolador para operar el servo que eleva la cubeta con parafina. Se 
+//Mantiene leyendo una entrada que activa una funncion que crea 2 distintos PWM's.
+//El PWM inicial matiene la barra horizontal, mientras que el PWM que manda cuando la
+//Senal de control esta en alto
 //*****************************************************************************
 #define ServoOut2 PORTDbits.RD2
 #define Control PORTBbits.RB5

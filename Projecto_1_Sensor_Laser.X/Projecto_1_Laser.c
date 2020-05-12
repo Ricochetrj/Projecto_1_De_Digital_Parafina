@@ -68,7 +68,9 @@ uint8_t confirm;
 
 
 //*****************************************************************************
-// Interrupcion de Esclavo
+// Interrupcion de Esclavo: Interrupcion de esclavo que activa el buffer para  recibir la senal de reloj del master
+// Luego de recbir la senal de reloj del master espera para revisar si el master lo esta llamando por nombre
+//Una vez que el maestro lo llama, le escribe al maestro con la informacion almacenada el la variable 
 //*****************************************************************************
 void __interrupt() isr(void)
 {
@@ -121,6 +123,14 @@ void main(void) {
     PORTB = 0;
     Motor =0;
     Stop  = 0;
+//*****************************************************************************
+// Loop infinito donde se lee el estado digital de la senal del sensor infrarojo
+    // Si no pasa ningun objeto el sensor infrarojo manda una senal digital alta
+    //Mientras la senal esta en alto, se manda el pulso al transistor que opera los
+    //Motores de la banda, dejando asi que la banda se mueva. Cuando pasa un objeto
+    //Se manda un 0 digital y se detiene la banda. Cuando se detiene la banda, se 
+    //manda por I2C una variable que indica que se detuvo
+//*****************************************************************************
     while(1){
         if(Laser == 1){
             confirm = 0;

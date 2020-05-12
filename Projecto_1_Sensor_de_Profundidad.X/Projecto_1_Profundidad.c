@@ -58,11 +58,10 @@ uint8_t adcval;
 uint8_t masterval;
 uint8_t deep;
 int adcsend;
-#define ServoOut2 RD2
-#define servoen2 RB4
-#define servoen3 RB3
 //*****************************************************************************
-// Interrupcion de Esclavo- Por Ligo George
+// Interrupcion de Esclavo- Por Ligo George, Interrupcion de esclavo que activa el buffer para  recibir la senal de reloj del master
+// Luego de recbir la senal de reloj del master espera para revisar si el master lo esta llamando por nombre
+//Una vez que el maestro lo llama, le escribe al maestro con la informacion almacenada el la variable 
 //*****************************************************************************
 void __interrupt() isr(void)
 {
@@ -109,41 +108,6 @@ void __interrupt() isr(void)
 // la profundidad del sensor, luego mandamos el valor de profundidad en cm al
 // master en la interrupcion
 //*****************************************************************************
-void ZeroGrados2(void) //0 Degree
-{
-  unsigned int i;
-  for(i=0;i<50;i++)
-  {
-    ServoOut2 = 1;
-    __delay_us(900);
-    ServoOut2 = 0;
-    __delay_us(19100);
-  }
-}
-
-void NoventaGrados2(void) //90 Degree
-{
-  unsigned int i;
-  for(i=0;i<30;i++)
-  {
-    ServoOut2 = 1;
-    __delay_us(1500);
-    ServoOut2 = 0;
-    __delay_us(18500);
-  }
-}
-
-void CientoOchentaGrados2(void) //180 Degree
-{
-  unsigned int i;
-  for(i=0;i<30;i++)
-  {
-    ServoOut2 = 1;
-    __delay_us(2400);
-    ServoOut2 = 0;
-    __delay_us(17600);
-  }
-}
 
 void main(void) {
     ADCinit(); //Iniciar ADC
@@ -176,15 +140,4 @@ void main(void) {
         }
     }
     
-    if(servoen2 == 0){
-        ZeroGrados2();
-        servoen3 =0;
-    }
-    else if(servoen2 == 1){
-        servoen3 =1;
-        CientoOchentaGrados2();
-        __delay_ms(3000);
-        ZeroGrados2();
-        
-    }
 }
